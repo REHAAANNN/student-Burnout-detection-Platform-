@@ -90,7 +90,8 @@ After deployment, go to your project on Vercel → **Settings** → **Environmen
 | `SMTP_USER` | Your email |
 | `SMTP_PASS` | Your app password |
 | `SMTP_FROM` | Your email |
-| `FRONTEND_URL` | Your frontend URL (set after frontend deploy) |
+| `FRONTEND_URL` | Your frontend URL, for example `https://burnout-guard.vercel.app` |
+| `FRONTEND_URLS` | Optional comma-separated allowlist if you have multiple frontend URLs/previews |
 | `CLOUDINARY_CLOUD_NAME` | From .env |
 | `CLOUDINARY_API_KEY` | From .env |
 | `CLOUDINARY_API_SECRET` | From .env |
@@ -114,6 +115,8 @@ VITE_APP_ENV=production
 
 Replace `https://your-backend.vercel.app` with your actual backend URL after deployment.
 
+Important: never deploy the frontend with `VITE_API_URL=http://localhost:5000/api`. Vite bakes this value into the production JavaScript bundle during build, so deployed users' browsers will try to call their own computer instead of your backend.
+
 ### 2.2 Deploy Frontend
 
 ```bash
@@ -129,32 +132,34 @@ Or connect your GitHub repo directly:
 2. Click **"Add New"** → **"Project"**
 3. Import your GitHub repo
 4. Set **Root Directory** to `frontend`
-5. Add environment variable: `VITE_API_URL` = your backend URL
+5. Add environment variable: `VITE_API_URL` = your backend URL with `/api`, for example `https://your-backend.vercel.app/api`
 6. Click **Deploy**
+
+After changing any Vercel environment variable, redeploy the frontend so Vite rebuilds with the new value.
 
 ---
 
 ## 🎯 Step 3: Update CORS in Backend
 
-Update `backend/src/app.js` to allow your frontend domain:
+Set your backend Vercel environment variable:
 
-<replace_in_file path="backend/src/app.js">
-<diff>
-------- SEARCH
-app.use(cors())
-=======
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
-}))
-</diff>
-</replace_in_file>
+```env
+FRONTEND_URL=https://burnout-guard.vercel.app
+```
+
+If you need to allow more than one frontend origin, use:
+
+```env
+FRONTEND_URLS=http://localhost:5173,https://burnout-guard.vercel.app
+```
 
 Then redeploy backend:
 ```bash
 cd backend
 vercel --prod
 ```
+
+After changing `FRONTEND_URL` or `FRONTEND_URLS`, redeploy the backend so the CORS allowlist updates.
 
 ---
 

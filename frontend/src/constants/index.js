@@ -53,7 +53,14 @@ export const RISK_COLORS = {
   'High Risk': 'danger'
 }
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const PRODUCTION_API_URL = 'https://student-burnout-detection-platform.vercel.app/api'
+const configuredApiUrl = import.meta.env.VITE_API_URL
+const isLocalApiUrl = configuredApiUrl?.includes('localhost') || configuredApiUrl?.includes('127.0.0.1')
+
+export const API_BASE_URL =
+  import.meta.env.PROD && isLocalApiUrl
+    ? PRODUCTION_API_URL
+    : configuredApiUrl || (import.meta.env.PROD ? PRODUCTION_API_URL : 'http://localhost:5000/api')
 
 export const STORAGE_KEYS = {
   ONBOARDING_COMPLETED: 'burnout_guard_onboarding_completed'
