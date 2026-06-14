@@ -15,6 +15,11 @@ body {
   @apply font-sans antialiased;
 }
 
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {

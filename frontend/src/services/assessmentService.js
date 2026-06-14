@@ -1,5 +1,6 @@
 import apiClient from './api'
 import { buildAssessmentPayload } from '../utils/assessmentPayload'
+import { tokenStorage } from '../utils/tokenStorage'
 
 /**
  * Assessment service
@@ -25,13 +26,16 @@ export const assessmentService = {
    */
   submitAssessment: async (answers, userId) => {
     try {
-      if (!userId) {
+      const storedUser = tokenStorage.getUser()
+      const resolvedUserId = userId || storedUser?.id || storedUser?._id
+
+      if (!resolvedUserId) {
         throw new Error('You must be logged in to submit an assessment')
       }
 
       const payload = buildAssessmentPayload(answers)
       const response = await apiClient.post('/assessment', {
-        userId,
+        userId: resolvedUserId,
         ...payload
       })
 
@@ -46,11 +50,14 @@ export const assessmentService = {
    * Get assessment data
    */
   getAssessmentData: async (userId) => {
-    if (!userId) {
+    const storedUser = tokenStorage.getUser()
+    const resolvedUserId = userId || storedUser?.id || storedUser?._id
+
+    if (!resolvedUserId) {
       throw new Error('You must be logged in to view assessment data')
     }
 
-    const response = await apiClient.get(`/assessment/${userId}`)
+    const response = await apiClient.get(`/assessment/${resolvedUserId}`)
     return response.data.data
   }
 }

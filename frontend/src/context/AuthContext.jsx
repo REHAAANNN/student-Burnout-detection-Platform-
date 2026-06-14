@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { authService } from '../services/authService'
 import { tokenStorage } from '../utils/tokenStorage'
+import { useAuthStore } from '../store/authStore'
 
 /**
  * Auth Context for managing authentication state
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }) => {
       const data = await authService.verifyRegisterOtp(email, otp)
       setToken(data.token)
       setUser(data.user)
+      useAuthStore.getState().initAuth()
       return data
     } catch (err) {
       setError(err.message)
@@ -81,6 +83,7 @@ export const AuthProvider = ({ children }) => {
       const data = await authService.verifyLoginOtp(email, otp)
       setToken(data.token)
       setUser(data.user)
+      useAuthStore.getState().initAuth()
       return data
     } catch (err) {
       setError(err.message)
@@ -115,6 +118,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null)
       setUser(null)
       setError(null)
+      useAuthStore.setState({ user: null, token: null, error: null, isLoading: false })
     } catch (err) {
       console.error('Logout error:', err)
     } finally {

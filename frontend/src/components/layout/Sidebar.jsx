@@ -3,12 +3,9 @@ import {
   LayoutDashboard,
   BookOpen,
   Lightbulb,
-  BarChart3,
-  Settings,
-  LogOut
+  Settings
 } from 'lucide-react'
 import { useUIStore } from '../../store/uiStore'
-import { useAuth } from '../../context/AuthContext'
 import { ROUTES } from '../../constants'
 
 /**
@@ -17,13 +14,11 @@ import { ROUTES } from '../../constants'
 export const Sidebar = () => {
   const location = useLocation()
   const { isSidebarOpen } = useUIStore()
-  const { logout } = useAuth()
 
   const navItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: ROUTES.DASHBOARD },
     { label: 'Journal', icon: BookOpen, href: ROUTES.JOURNAL },
-    { label: 'Recommendations', icon: Lightbulb, href: ROUTES.RECOMMENDATIONS },
-    { label: 'Analytics', icon: BarChart3, href: ROUTES.DASHBOARD } // Placeholder
+    { label: 'Recommendations', icon: Lightbulb, href: ROUTES.RECOMMENDATIONS }
   ]
 
   const isActive = (href) => location.pathname === href
