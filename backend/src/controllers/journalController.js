@@ -1,4 +1,5 @@
 const Journal = require('../models/Journal')
+const { updateStreaksForActivity } = require('../utils/streakService')
 
 /**
  * Lightweight sentiment analysis based on keywords.
@@ -31,6 +32,8 @@ const createEntry = async (req, res, next) => {
       entry,
       sentiment
     })
+
+    await updateStreaksForActivity(userId, 'wellness')
 
     res.status(201).json({
       success: true,

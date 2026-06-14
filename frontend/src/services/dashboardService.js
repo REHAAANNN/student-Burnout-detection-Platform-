@@ -38,6 +38,22 @@ export const dashboardService = {
   },
 
   /**
+   * Get burnout forecast
+   */
+  getBurnoutForecast: async (userId) => {
+    try {
+      if (!userId) {
+        throw new Error('You must be logged in to view forecast data')
+      }
+
+      const response = await apiClient.get(`/dashboard/forecast/${userId}`)
+      return response.data
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message || 'Failed to load forecast data')
+    }
+  },
+
+  /**
    * Get recommendations
    */
   getRecommendations: async () => {

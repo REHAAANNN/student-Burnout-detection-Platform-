@@ -14,7 +14,11 @@ import { RecommendationsCard } from '../../components/dashboard/RecommendationsC
 import { BurnoutDriversCard } from '../../components/dashboard/BurnoutDriversCard'
 import { JournalPreviewCard } from '../../components/dashboard/JournalPreviewCard'
 import { SupportResourcesCard } from '../../components/dashboard/SupportResourcesCard'
+import { WellnessTrackerCard } from '../../components/dashboard/WellnessTrackerCard'
+import { BurnoutForecastCard } from '../../components/dashboard/BurnoutForecastCard'
+import { StreaksCard } from '../../components/dashboard/StreaksCard'
 import { dashboardService } from '../../services/dashboardService'
+import { streakService } from '../../services/streakService'
 import { useAssessmentStore } from '../../store/assessmentStore'
 import { useAuth } from '../../context/AuthContext'
 import { ROUTES } from '../../constants'
@@ -39,16 +43,20 @@ export const Dashboard = () => {
       try {
         setIsLoading(true)
 
-        const userId = user?._id
+        const userId = user?._id || user?.id
         if (!userId) return
 
-        const [data, trendData] = await Promise.all([
+        const [data, trendData, forecastData, streakData] = await Promise.all([
           dashboardService.getDashboardData(userId),
-          dashboardService.getBurnoutTrend(userId)
+          dashboardService.getBurnoutTrend(userId),
+          dashboardService.getBurnoutForecast(userId),
+          streakService.getStreaks(userId)
         ])
         setDashboardData({
           ...data,
-          trendData
+          trendData,
+          forecastData,
+          streakData
         })
         setError(null)
       } catch (err) {
@@ -130,6 +138,10 @@ export const Dashboard = () => {
               <StressorCard mainStressor={dashboardData.mainStressor} />
             </div>
 
+            <BurnoutForecastCard forecast={dashboardData.forecastData} />
+
+            <StreaksCard streaks={dashboardData.streakData} />
+
             {/* Trend Chart */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
@@ -143,8 +155,20 @@ export const Dashboard = () => {
             {/* Drivers and Resources */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <BurnoutDriversCard data={dashboardData.stressorBreakdown} />
-              <SupportResourcesCard />
+              <WellnessTrackerCard
+                userId={user?._id || user?.id}
+                initialReminders={dashboardData.reminders}
+                suggestions={dashboardData.reminderSuggestions}
+                onActivityTracked={async () => {
+                  const userId = user?._id || user?.id
+                  if (!userId) return
+                  const streakData = await streakService.getStreaks(userId)
+                  setDashboardData((current) => ({ ...current, streakData }))
+                }}
+              />
             </div>
+
+            <SupportResourcesCard riskLevel={dashboardData.riskLevel} />
 
             {/* Journal and Footer */}
             <JournalPreviewCard entry={dashboardData.recentJournal} />

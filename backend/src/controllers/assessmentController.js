@@ -1,6 +1,7 @@
 const Assessment = require('../models/Assessment')
 const calculateBurnout = require('../utils/burnoutCalculator')
 const mapAssessmentAnswers = require('../utils/assessmentMapper')
+const { updateStreaksForActivity } = require('../utils/streakService')
 
 // @desc    Submit assessment and calculate burnout score
 // @route   POST /api/assessment
@@ -40,6 +41,8 @@ const submitAssessment = async (req, res, next) => {
       burnoutScore,
       riskLevel
     })
+
+    await updateStreaksForActivity(userId, 'wellness')
 
     res.status(201).json({
       success: true,
